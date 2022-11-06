@@ -1,0 +1,150 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+DROP DATABASE IF EXISTS school;
+CREATE DATABASE school;
+USE school;
+
+CREATE TABLE teacher(
+teacher_id INT(11) NOT NULL AUTO_INCREMENT,
+first_name VARCHAR(40),
+last_name VARCHAR(40),
+language_1 VARCHAR(3),
+language_2 VARCHAR(3),
+dob DATE,
+tax_id INT,
+phone_no VARCHAR(20),
+PRIMARY KEY (teacher_id),
+UNIQUE KEY (tax_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE client(
+client_id INT(11) NOT NULL AUTO_INCREMENT,
+client_name VARCHAR(40),
+address VARCHAR(60),
+industry VARCHAR(20),
+PRIMARY KEY (client_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE participant(
+participant_id INT(11) NOT NULL AUTO_INCREMENT,
+first_name VARCHAR(40),
+last_name VARCHAR(40),
+phone_no VARCHAR(20),
+client_id INT(11),
+PRIMARY KEY(participant_id),
+FOREIGN KEY (client_id) REFERENCES client(client_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE course(
+course_id INT(11) NOT NULL AUTO_INCREMENT,
+course_name VARCHAR(40),
+language VARCHAR(3),
+level VARCHAR(2),
+course_length_weeks INT,
+start_date DATE,
+in_school TINYINT,
+teacher INT(11),
+client INT(11),
+PRIMARY KEY(course_id),
+FOREIGN KEY(teacher) REFERENCES teacher(teacher_id),
+FOREIGN KEY (client) REFERENCES client(client_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE takes_course(
+participant_id INT(11) NOT NULL,
+course_id INT(11) NOT NULL,
+FOREIGN KEY(participant_id) REFERENCES participant(participant_id),
+FOREIGN KEY(course_id) REFERENCES course(course_id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+SET FOREIGN_KEY_CHECKS=1;
+commit;
+
+INSERT INTO teacher(first_name, last_name, language_1, language_2, dob, tax_id, phone_no)
+VALUES("Joyce", "Mofokeng", "Jav","SQL" ,"1980-05-26 00:48:33",1010253587,"0817952658"),
+("Lerato", "Moloko", "Cld", "JSt", "1993-03-26 00:00:00", 1535298582, "0719853568"),
+("Grace", "Molala", "C#", "C++", "1992-09-22 00:00:00", 1258785985, "0732658457"),
+("Anna", "Kendall", "Pyn", "Mat", "1989-05-14 00:00:00", 1145698756, "0816589758"),
+("Marila", "Moose", "Rct", "Djg", "1987-12-27 00:00:00", 1125468521, "0813652987"),
+("Jonathan", "Moisty", "NET", "CSS", "1995-09-07 00:12:12", 1531654875, "0789562587");
+
+INSERT INTO client(client_name, address, industry)
+VALUES("Jane Smith", "24 south street", "Banking"),
+("Elliot James", "205 Albetina street", "Consulting"),
+("Eleanor James", "12 commissioner street", "Telecommunication"),
+("James Micheal", "14 Forbes street", "Transportation"),
+("Sally Moore", "12 Alexander street", "Energy"),
+("Matthew Green", "18 Oak street", "Education");
+
+INSERT INTO participant(first_name , last_name, phone_no, client_id)
+VALUES("Gilbert", "Great", "0712356985", 14),
+("Anne", "Cole", "0795872456", 14),
+("Josie", "Pie", "0817950265", 14),
+("Dimpho", "Moetanalo", "0758956987", 14),
+("Siphiwe", "Siyaya", "0715698745", 14),
+("Kate", "Awkwafina", "0604587958", 14),
+("Chris", "Jones", "0632565987", 14);
+
+INSERT INTO course(course_name ,language, level ,course_length_weeks, start_date, in_school, teacher,client)
+VALUES("Software development", "Jav", "3", 24, "2023-01-18 12:00:00", 2, 19, 14),
+("Frontend Developer", "JSt", "3", 20, "2023-01-18 12:00:00", 3 ,20 ,14),
+("Cloud developer", "Cld", "3", "18", "2023-01-18 12:00:00", 4, 20, 14),
+("Data Analyst", "Pyn", "2", "15", "2023-01-18 12:00:00", 1, 22, 14),
+("Data Scientist", "Pyn", "4", "12", "2020-01-18 12:00:00", 4, 22, 14);
+
+
+INSERT INTO takes_course(participant_id, course_id)
+VALUES(8, 16),
+(9, 16),
+(10, 16),
+(11, 16),
+(12, 16);
+
+#A
+SELECT course_id, course_name 
+FROM school.course
+WHERE start_date < '2021-12-12';
+
+#B
+SELECT client_id, client_name, address
+FROM school.client
+WHERE address LIKE '%a%';
+
+#C
+SELECT COUNT(*) course
+FROM school.course
+UNION ALL
+SELECT COUNT(*) teacher
+FROM school.teacher
+UNION ALL
+SELECT COUNT(*)participant
+FROM school.participant;
+
+#D
+SELECT MAX(course_length_weeks) 
+FROM school.course;
+
+#E
+SELECT MIN(course_length_weeks)
+FROM school.course
+WHERE level = 2;
+
+#F
+SELECT first_name  p  , last_name p, client_name c
+FROM school.participant p, school.client c
+WHERE p.client_id  = c.client_id;
+
+#G
+SELECT teacher.first_name, teacher.last_name, teacher.phone_no 
+FROM school.course
+INNER JOIN teacher ON teacher.teacher_id = course.teacher
+WHERE course.course_id = 17;
+
+#H
+SELECT teacher.first_name, teacher.last_name, course.course_name, participant.first_name, participant.last_name
+FROM school.course
+INNER JOIN takes_course ON course.course_id = takes_course.course_id
+INNER JOIN participant ON takes_course.participant_id = participant.participant_id
+INNER JOIN teacher ON course.teacher = teacher.teacher_id
+WHERE course.course_id = 16;
+
